@@ -420,69 +420,188 @@ body {
   margin-bottom: 1rem;
 }
 
-/* Market Overview */
+/* Market Intelligence Section */
 .market-overview {
-  padding: 5rem 5%;
-  background: linear-gradient(120deg, #f7fafd 60%, #e3eafc 100%);
+  padding: 6rem 0;
+  background: linear-gradient(135deg, var(--light-bg) 0%, #f8f9fa 100%);
 }
 
-.market-overview h2 {
+.section-header {
   text-align: center;
-  margin-bottom: 3rem;
+  max-width: 800px;
+  margin: 0 auto 4rem;
+  padding: 0 1rem;
+}
+
+.section-header h2 {
   color: var(--primary-color);
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
 }
 
-.market-grid {
+.section-subtitle {
+  color: var(--text-color);
+  font-size: 1.2rem;
+  line-height: 1.6;
+  opacity: 0.9;
+}
+
+.market-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.market-features-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2.5rem;
+  margin-bottom: 3rem;
 }
 
-.market-card {
-  background: var(--white);
-  border-radius: 18px;
+.feature-item {
+  text-align: center;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 15px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
   overflow: hidden;
-  box-shadow: 0 2px 16px rgba(58, 80, 107, 0.06);
-  transition: box-shadow var(--transition), transform var(--transition);
 }
 
-.market-card:hover {
+.feature-item::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(
+    90deg,
+    var(--primary-color),
+    var(--secondary-color)
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.feature-item:hover {
   transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.feature-item:hover::before {
+  opacity: 1;
+}
+
+.feature-icon {
+  width: 70px;
+  height: 70px;
+  margin: 0 auto 1.5rem;
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--secondary-color)
+  );
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.8rem;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.feature-item h3 {
+  color: var(--primary-color);
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.feature-item p {
+  color: var(--text-color);
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.cta-container {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.cta-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 1.2rem 2.5rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: white;
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--secondary-color)
+  );
+  border-radius: 50px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.cta-button i {
+  transition: transform 0.3s ease;
+}
+
+.cta-button:hover {
+  transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
-.market-card img {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
+.cta-button:hover i {
+  transform: translateX(5px);
 }
 
-.market-card h3 {
-  padding: 1rem;
-  color: var(--primary-color);
-}
+@media (max-width: 768px) {
+  .market-overview {
+    padding: 4rem 0;
+  }
 
-.market-card p {
-  padding: 0 1rem;
-  color: var(--text-color);
-}
+  .section-header {
+    margin-bottom: 3rem;
+  }
 
-.trend {
-  display: inline-block;
-  padding: 0.5rem 1rem;
-  margin: 1rem;
-  border-radius: 20px;
-  font-weight: bold;
-}
+  .section-header h2 {
+    font-size: 2rem;
+  }
 
-.trend.up {
-  background: #e8f5e9;
-  color: #2e7d32;
-}
+  .section-subtitle {
+    font-size: 1.1rem;
+  }
 
-.trend.down {
-  background: #ffebee;
-  color: #c62828;
+  .market-features-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .feature-item {
+    padding: 1.5rem;
+  }
+
+  .feature-item h3 {
+    font-size: 1.3rem;
+  }
+
+  .feature-item p {
+    font-size: 1rem;
+  }
+
+  .cta-button {
+    padding: 1rem 2rem;
+    font-size: 1rem;
+  }
 }
 
 /* CTA Section */
@@ -610,7 +729,7 @@ footer {
     font-size: 2.5rem;
   }
   .features-grid,
-  .market-grid {
+  .market-features-grid {
     grid-template-columns: 1fr;
   }
 

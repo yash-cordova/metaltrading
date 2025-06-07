@@ -2,22 +2,31 @@
 document.addEventListener("DOMContentLoaded", function () {
   console.log("Market data script loaded");
 
+  // API Configuration
+  const FMP_API = {
+    baseUrl: "https://api.metals.dev/v1",
+    apiKey: "G4IXQPGPGPAFCF8A3HZY3628A3HZY",
+  };
+
+  // List of metals to track
   const metals = [
-    { id: "copper", name: "Copper", symbol: "HG=F" },
-    { id: "aluminum", name: "Aluminum", symbol: "ALI=F" },
-    { id: "gold", name: "Gold", symbol: "XAU=F" },
-    { id: "zinc", name: "Zinc", symbol: "ZN=F" },
+    { symbol: "copper", name: "Copper" },
+    { symbol: "aluminum", name: "Aluminum" },
+    { symbol: "lead", name: "Lead" },
+    { symbol: "nickel", name: "Nickel" },
+    { symbol: "zinc", name: "Zinc" },
   ];
+
+  // Available units
+  const units = [
+    { value: "g", label: "Grams (g)" },
+    { value: "kg", label: "Kilograms (kg)" },
+    { value: "toz", label: "Troy Ounce (toz)" },
+    { value: "mt", label: "Metric Ton (mt)" },
+  ];
+
   const priceContainer = document.getElementById("live-prices");
   let currentExchangeRate = null;
-
-  // Multiple CORS proxies for fallback
-  const PROXIES = [
-    "https://api.allorigins.win/raw?url=",
-    "https://api.codetabs.com/v1/proxy?quest=",
-    "https://corsproxy.io/?",
-    "https://cors-anywhere.herokuapp.com/",
-  ];
 
   if (!priceContainer) {
     console.error(
@@ -28,66 +37,38 @@ document.addEventListener("DOMContentLoaded", function () {
 
   console.log("Price container found:", priceContainer);
 
-  // Function to try fetching with different proxies
-  const fetchWithProxy = async (url, proxyIndex = 0) => {
-    if (proxyIndex >= PROXIES.length) {
-      throw new Error("All proxies failed");
-    }
-
+  // Function to fetch metal prices
+  const fetchMetalPrices = async (unit) => {
     try {
-      const proxyUrl = PROXIES[proxyIndex] + encodeURIComponent(url);
-      console.log(`Trying proxy ${proxyIndex + 1}: ${proxyUrl}`);
-
-      const response = await fetch(proxyUrl);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      const response = await fetch(
+        `${FMP_API.baseUrl}/latest?api_key=${FMP_API.apiKey}&currency=INR&unit=${unit}`
+      );
       const data = await response.json();
-      return data;
-    } catch (error) {
-      console.warn(`Proxy ${proxyIndex + 1} failed:`, error);
-      // Try next proxy
-      return fetchWithProxy(url, proxyIndex + 1);
-    }
-  };
 
-  // Function to fetch current USD/INR exchange rate
-  const fetchExchangeRate = async () => {
-    try {
-      const url = "https://query1.finance.yahoo.com/v8/finance/chart/USDINR=X";
-      const data = await fetchWithProxy(url);
-
-      if (!data.chart || !data.chart.result || !data.chart.result[0]) {
-        throw new Error("Invalid exchange rate data");
+      if (!data || !data.metals) {
+        throw new Error("Invalid API response");
       }
 
-      currentExchangeRate = data.chart.result[0].meta.regularMarketPrice;
-      console.log("Current USD/INR rate:", currentExchangeRate);
-      return currentExchangeRate;
+      const prices = {};
+      metals.forEach((metal) => {
+        if (data.metals[metal.symbol] !== undefined) {
+          prices[metal.symbol] = {
+            current: data.metals[metal.symbol],
+            timestamp: new Date(data.timestamps.metal),
+          };
+        }
+      });
+
+      return prices;
     } catch (error) {
-      console.error("Error fetching exchange rate:", error);
+      console.error("Error fetching metal prices:", error);
       throw error;
     }
   };
 
-  // Function to format price in USD
-  const formatUSD = (price) => {
-    if (isNaN(price)) {
-      return "N/A";
-    }
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(price);
-  };
-
-  // Function to format price in INR
+  // Function to format INR price
   const formatINR = (price) => {
-    if (isNaN(price)) {
-      return "N/A";
-    }
+    if (isNaN(price)) return "N/A";
     return new Intl.NumberFormat("en-IN", {
       style: "currency",
       currency: "INR",
@@ -96,178 +77,245 @@ document.addEventListener("DOMContentLoaded", function () {
     }).format(price);
   };
 
-  // Function to format date
-  const formatDate = (date) => {
-    return new Date(date * 1000).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-    });
+  // Function to create unit selector
+  const createUnitSelector = (currentUnit) => {
+    return `
+        <div class="unit-selector">
+            <label for="unitSelect" class="form-label">Select Price Unit</label>
+            <select id="unitSelect" class="form-select">
+                ${units
+                  .map(
+                    (unit) => `
+                    <option value="${unit.value}" ${
+                      unit.value === currentUnit ? "selected" : ""
+                    }>
+                        ${unit.label}
+                    </option>
+                `
+                  )
+                  .join("")}
+            </select>
+        </div>
+    `;
   };
 
-  // Function to create price card
-  const createPriceCard = (metal, data) => {
-    console.log(`Creating price card for ${metal.name}:`, data);
-
-    // Handle NaN values for price change calculation
-    let changePercent = 0;
-    let isPositive = true;
-
-    if (!isNaN(data.current) && !isNaN(data.history[data.history.length - 1])) {
-      const change = data.current - data.history[data.history.length - 1];
-      changePercent = (change / data.history[data.history.length - 1]) * 100;
-      isPositive = change >= 0;
-    }
-
-    // Convert USD to INR using current exchange rate
-    const inrPrice = isNaN(data.current)
-      ? NaN
-      : data.current * currentExchangeRate;
-    const inrHistory = data.history.map((price) =>
-      isNaN(price) ? NaN : price * currentExchangeRate
-    );
+  // Function to create metal price card
+  const createPriceCard = (metal, data, unit) => {
+    const unitLabel =
+      units.find((u) => u.value === unit)?.label.split(" ")[0] || unit;
 
     return `
-            <div class="price-card" data-aos="fade-up">
-                <div class="price-header">
-                    <h3>${metal.name}</h3>
-                    ${
-                      !isNaN(changePercent)
-                        ? `
-                        <span class="price-change ${
-                          isPositive ? "up" : "down"
-                        }">
-                            ${isPositive ? "+" : ""}${changePercent.toFixed(2)}%
-                        </span>
-                    `
-                        : ""
-                    }
-                </div>
-                <div class="price-details">
-                    <div class="price-row">
-                        <span class="currency-label">USD</span>
-                        <span class="current-price">${formatUSD(
-                          data.current
-                        )}</span>
+        <div class="hover-card">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">${metal.name}</h5>
+                    <h6 class="card-subtitle">Spot Price per ${unitLabel}</h6>
+                    <div class="price-section">
+                        <div class="inr-price">${formatINR(data.current)}</div>
                     </div>
-                    <div class="price-row">
-                        <span class="currency-label">INR</span>
-                        <span class="current-price">${formatINR(
-                          inrPrice
-                        )}</span>
+                    <div class="timestamp">
+                        <small>Updated: ${data.timestamp.toLocaleTimeString()}</small>
                     </div>
-                    <div class="exchange-rate">
-                        <small>1 USD = ${formatINR(currentExchangeRate)}</small>
-                    </div>
-                </div>
-                <div class="price-history">
-                    <div class="history-header">3-Day History (USD)</div>
-                    ${data.history
-                      .map(
-                        (price, index) => `
-                        <div class="history-item">
-                            <span class="date">${formatDate(
-                              data.timestamps[index]
-                            )}</span>
-                            <span class="price">${formatUSD(price)}</span>
-                        </div>
-                    `
-                      )
-                      .join("")}
                 </div>
             </div>
-        `;
-  };
-
-  // Function to create error card
-  const createErrorCard = (metal) => {
-    return `
-            <div class="price-card error" data-aos="fade-up">
-                <div class="price-header">
-                    <h3>${metal.name}</h3>
-                </div>
-                <div class="error-message">
-                    Unable to show price
-                </div>
-            </div>
-        `;
-  };
-
-  // Function to fetch metal prices from Yahoo Finance
-  const fetchMetalPrices = async (metal) => {
-    try {
-      console.log(`Fetching price for ${metal.name}...`);
-
-      const url = `https://query1.finance.yahoo.com/v8/finance/chart/${metal.symbol}?interval=1d&range=5d`;
-      const data = await fetchWithProxy(url);
-
-      if (!data.chart || !data.chart.result || !data.chart.result[0]) {
-        throw new Error("Invalid price data");
-      }
-
-      const result = data.chart.result[0];
-      const timestamps = result.timestamp;
-      const quotes = result.indicators.quote[0];
-
-      // Get current price (in USD)
-      const currentPrice = result.meta.regularMarketPrice;
-
-      // Get last 3 days of closing prices (in USD)
-      const history = quotes.close.slice(-4, -1); // Last 3 days excluding today
-      const historyTimestamps = timestamps.slice(-4, -1);
-
-      // Validate the data
-      if (isNaN(currentPrice) || history.some((price) => isNaN(price))) {
-        throw new Error("Invalid price data received");
-      }
-
-      return {
-        current: currentPrice,
-        history: history,
-        timestamps: historyTimestamps,
-      };
-    } catch (error) {
-      console.error(`Error fetching ${metal.name} price:`, error);
-      throw error;
-    }
+        </div>
+    `;
   };
 
   // Function to update prices
-  const updatePrices = async () => {
-    console.log("Updating prices...");
-
+  const updatePrices = async (unit = "g") => {
     try {
-      // First fetch the current exchange rate
-      await fetchExchangeRate();
+      console.log("Fetching prices...");
+      const metalData = await fetchMetalPrices(unit);
 
-      const pricesHTML = [];
+      const priceContainer = document.getElementById("live-prices");
+      if (priceContainer) {
+        console.log("Updating price container with data:", metalData);
+        priceContainer.innerHTML = `
+          ${createUnitSelector(unit)}
+          <div class="price-container">
+            ${metals
+              .map((metal) => {
+                const data = metalData[metal.symbol];
+                return data ? createPriceCard(metal, data, unit) : "";
+              })
+              .join("")}
+          </div>
+        `;
 
-      for (const metal of metals) {
-        try {
-          const data = await fetchMetalPrices(metal);
-          pricesHTML.push(createPriceCard(metal, data));
-        } catch (error) {
-          console.error(`Failed to fetch ${metal.name} price:`, error);
-          pricesHTML.push(createErrorCard(metal));
+        // Add event listener for unit change
+        const unitSelect = document.getElementById("unitSelect");
+        if (unitSelect) {
+          unitSelect.addEventListener("change", (e) => {
+            updatePrices(e.target.value);
+          });
         }
-      }
 
-      if (pricesHTML.length > 0) {
-        priceContainer.innerHTML = pricesHTML.join("");
-        console.log("Prices updated successfully");
+        console.log("Price container updated");
       } else {
-        throw new Error("No price data available");
+        console.error("Price container not found");
       }
     } catch (error) {
       console.error("Error updating prices:", error);
-      priceContainer.innerHTML =
-        '<div class="error-message">Unable to fetch price data. Please try again later.</div>';
+      const priceContainer = document.getElementById("live-prices");
+      if (priceContainer) {
+        priceContainer.innerHTML = `
+          <div class="alert alert-danger" role="alert">
+            Error updating prices. Please try again later.
+          </div>
+        `;
+      }
     }
   };
 
-  // Initial update
-  console.log("Starting initial price update...");
-  updatePrices();
+  // Add custom styles
+  const style = document.createElement("style");
+  style.textContent = `
+    .live-prices-grid {
+        width: 100%;
+        min-height: 200px;
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .price-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.5rem;
+        width: 100%;
+        max-width: 1200px;
+        padding: 1rem;
+    }
+    .hover-card {
+        transition: var(--transition);
+        width: 100%;
+    }
+    .hover-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    .price-section {
+        padding: 10px 0;
+        margin: 10px 0;
+        border-top: 1px solid rgba(0,0,0,0.05);
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    .inr-price {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--primary-color);
+        text-align: center;
+        margin: 8px 0;
+    }
+    .card {
+        background: var(--white);
+        border-radius: 10px;
+        height: 100%;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transition: var(--transition);
+        overflow: hidden;
+    }
+    .card-body {
+        padding: 1.2rem;
+    }
+    .card-title {
+        font-size: 1.2rem;
+        margin-bottom: 0.3rem;
+        color: var(--primary-color);
+        font-weight: 600;
+    }
+    .card-subtitle {
+        font-size: 0.9rem;
+        margin-bottom: 0.8rem;
+        color: var(--text-color);
+        font-weight: 500;
+    }
+    .timestamp {
+        font-size: 0.8rem;
+        color: var(--secondary-color);
+        text-align: center;
+        margin-top: 10px;
+        padding-top: 8px;
+        border-top: 1px solid rgba(0,0,0,0.05);
+    }
+    .unit-selector {
+        text-align: left;
+        margin-bottom: 2rem;
+        padding: 0;
+        width: 100%;
+        max-width: 300px;
+    }
+    .form-label {
+        font-size: 1.1rem;
+        color: var(--primary-color);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    .form-select {
+        border-radius: 8px;
+        border: 2px solid #e0e0e0;
+        padding: 0.8rem 1.2rem;
+        font-size: 1.1rem;
+        color: var(--primary-color);
+        background-color: var(--white);
+        transition: var(--transition);
+        cursor: pointer;
+        width: 100%;
+        appearance: none;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231a237e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 1.2em;
+    }
+    .form-select:hover {
+        border-color: var(--primary-color);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(26, 35, 126, 0.1);
+        outline: none;
+    }
+    .alert {
+        border-radius: 10px;
+        padding: 1.2rem;
+        margin: 1rem 0;
+        background: #ffebee;
+        color: #c62828;
+        border: none;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        font-weight: 500;
+    }
+    @media (max-width: 768px) {
+        .live-prices-grid {
+            padding: 1rem;
+        }
+        .price-container {
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+        }
+        .unit-selector {
+            margin: 1rem 0;
+            max-width: 100%;
+        }
+        .card-body {
+            padding: 1rem;
+        }
+    }
+  `;
+  document.head.appendChild(style);
 
-  // Update every 5 minutes
-  setInterval(updatePrices, 5 * 60 * 1000);
+  // Initial update with default unit (g)
+  console.log("Starting initial update...");
+  updatePrices("g");
+
+  // Update prices every 5 minutes
+  setInterval(() => {
+    const unitSelect = document.getElementById("unitSelect");
+    const currentUnit = unitSelect ? unitSelect.value : "g";
+    updatePrices(currentUnit);
+  }, 5 * 60 * 1000);
 });
