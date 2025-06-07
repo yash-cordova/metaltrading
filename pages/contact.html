@@ -165,8 +165,22 @@
 </head>
 
 <body>
-    <!-- Navbar Container -->
-    <div id="navbar-container"></div>
+    <nav class="navbar">
+        <a href="../index.html" class="logo">Metal Trading</a>
+        <button id="hamburger" class="hamburger" aria-label="Menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div id="navLinks" class="nav-links">
+            <a href="../index.html">Home</a>
+            <a href="about.html" class="active">About</a>
+            <a href="services.html">Services</a>
+            <a href="market.html">Market</a>
+            <a href="contact.html">Contact</a>
+        </div>
+        <div id="sidebarOverlay" class="sidebar-overlay"></div>
+    </nav>
 
     <!-- Contact Hero Section -->
     <section class="contact-hero"
@@ -310,7 +324,7 @@
 
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="../js/main.js"></script>
-    <script src="js/menu.js"></script>
+    <script src="../js/menu.js"></script>
     <script>
         // Form submission handling
         document.getElementById('contactForm').addEventListener('submit', function (e) {
