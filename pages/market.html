@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Market - MetalTrading</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <style>
+        .market-hero {
+            height: 60vh;
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+                url('https://images.unsplash.com/photo-1556740772-1a741367b93e?w=1600') center/cover;
+        }
+
+        .market-content {
+            padding: 5rem 5%;
+        }
+
+        .market-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .market-card {
+            background: var(--white);
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: var(--transition);
+        }
+
+        .market-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .market-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .market-price {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .market-change {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .market-change.up {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .market-change.down {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .market-chart {
+            width: 100%;
+            height: 200px;
+            background: #f5f6fa;
+            border-radius: 10px;
+            margin: 1rem 0;
+        }
+
+        .market-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-label {
+            color: var(--text-color);
+            font-size: 0.9rem;
+        }
+
+        .stat-value {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .market-analysis {
+            background: var(--light-bg);
+            padding: 5rem 5%;
+        }
+
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .analysis-card {
+            background: var(--white);
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .analysis-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .analysis-card p {
+            color: var(--text-color);
+            margin-bottom: 1rem;
+        }
+
+        .news-section {
+            padding: 5rem 5%;
+        }
+
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .news-card {
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: var(--transition);
+        }
+
+        .news-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .news-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .news-content {
+            padding: 1.5rem;
+        }
+
+        .news-date {
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .news-title {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .news-excerpt {
+            color: var(--text-color);
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="logo">
+            <img src="https://images.unsplash.com/photo-1614728263952-84ea256f9679?w=500" alt="MetalTrading Logo">
+            <span>MetalTrading</span>
+        </div>
+        <div class="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="nav-links">
+            <a href="../index.html">Home</a>
+            <a href="about.html">About</a>
+            <a href="services.html">Services</a>
+            <a href="market.html" class="active">Market</a>
+            <a href="contact.html">Contact</a>
+        </div>
+    </nav>
+
+    <!-- Market Hero Section -->
+    <section class="market-hero"
+        style="background: linear-gradient(rgba(0,0,0,0.6),rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1556740772-1a741367b93e?w=1600') center/cover;">
+        <div class="hero-content">
+            <h1>Market Overview</h1>
+            <p>Real-time Metal Market Data and Analysis</p>
+        </div>
+    </section>
+
+    <!-- Market Content -->
+    <section class="market-content">
+        <div class="market-grid">
+            <div class="market-card" data-aos="fade-up">
+                <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=600" alt="Gold Market"
+                    class="market-image">
+                <h3>Gold</h3>
+                <p>Current price, trends, and analysis for gold trading.</p>
+            </div>
+            <div class="market-card" data-aos="fade-up" data-aos-delay="100">
+                <img src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=600" alt="Silver Market"
+                    class="market-image">
+                <h3>Silver</h3>
+                <p>Current price, trends, and analysis for silver trading.</p>
+            </div>
+            <div class="market-card" data-aos="fade-up" data-aos-delay="200">
+                <img src="https://images.unsplash.com/photo-1556740772-1a741367b93e?w=600" alt="Platinum Market"
+                    class="market-image">
+                <h3>Platinum</h3>
+                <p>Current price, trends, and analysis for platinum trading.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Market Analysis -->
+    <section class="market-analysis">
+        <h2 data-aos="fade-up">Market Analysis</h2>
+        <div class="analysis-grid">
+            <div class="analysis-card" data-aos="fade-up">
+                <h3>Technical Analysis</h3>
+                <p>Our expert analysts provide detailed technical analysis of metal price movements, helping you make
+                    informed trading decisions.</p>
+                <a href="contact.html" class="cta-button">Get Analysis</a>
+            </div>
+            <div class="analysis-card" data-aos="fade-up" data-aos-delay="100">
+                <h3>Market Trends</h3>
+                <p>Stay updated with the latest market trends and forecasts to optimize your trading strategy.</p>
+                <a href="contact.html" class="cta-button">View Trends</a>
+            </div>
+            <div class="analysis-card" data-aos="fade-up" data-aos-delay="200">
+                <h3>Economic Impact</h3>
+                <p>Understand how global economic factors influence metal prices and market dynamics.</p>
+                <a href="contact.html" class="cta-button">Learn More</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Market News -->
+    <section class="news-section">
+        <h2 data-aos="fade-up">Latest Market News</h2>
+        <div class="news-grid">
+            <div class="news-card" data-aos="fade-up">
+                <img src="https://images.unsplash.com/photo-1614728263952-84ea256f9679?w=500" alt="Market News"
+                    class="news-image">
+                <div class="news-content">
+                    <div class="news-date">March 15, 2024</div>
+                    <h3 class="news-title">Gold Prices Reach New Highs Amid Global Uncertainty</h3>
+                    <p class="news-excerpt">Gold prices surged to new heights as investors seek safe-haven assets during
+                        market volatility.</p>
+                    <a href="#" class="cta-button">Read More</a>
+                </div>
+            </div>
+            <div class="news-card" data-aos="fade-up" data-aos-delay="100">
+                <img src="https://images.unsplash.com/photo-1614728263952-84ea256f9679?w=500" alt="Market News"
+                    class="news-image">
+                <div class="news-content">
+                    <div class="news-date">March 14, 2024</div>
+                    <h3 class="news-title">Silver Demand Increases in Industrial Sector</h3>
+                    <p class="news-excerpt">Growing industrial applications drive silver demand to new levels in Q1
+                        2024.</p>
+                    <a href="#" class="cta-button">Read More</a>
+                </div>
+            </div>
+            <div class="news-card" data-aos="fade-up" data-aos-delay="200">
+                <img src="https://images.unsplash.com/photo-1614728263952-84ea256f9679?w=500" alt="Market News"
+                    class="news-image">
+                <div class="news-content">
+                    <div class="news-date">March 13, 2024</div>
+                    <h3 class="news-title">Platinum Market Shows Strong Recovery</h3>
+                    <p class="news-excerpt">Platinum prices show positive momentum as supply constraints continue.</p>
+                    <a href="#" class="cta-button">Read More</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>MetalTrading</h3>
+                <p>Your trusted partner in metal trading since 1995</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <a href="../index.html">Home</a>
+                <a href="about.html">About</a>
+                <a href="services.html">Services</a>
+                <a href="market.html">Market</a>
+                <a href="contact.html">Contact</a>
+            </div>
+            <div class="footer-section">
+                <h3>Contact Us</h3>
+                <p>Email: info@metaltrading.com</p>
+                <p>Phone: +1 (555) 123-4567</p>
+            </div>
+            <div class="footer-section">
+                <h3>Follow Us</h3>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 MetalTrading. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="../js/main.js"></script>
+</body>
+
+</html>
