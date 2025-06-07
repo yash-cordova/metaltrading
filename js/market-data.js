@@ -11,6 +11,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const priceContainer = document.getElementById("live-prices");
   let currentExchangeRate = null;
 
+  // Using AllOrigins CORS proxy
+  const CORS_PROXY = "https://api.allorigins.win/raw?url=";
+
   if (!priceContainer) {
     console.error(
       "Price container not found! Make sure there is an element with id='live-prices'"
@@ -23,9 +26,8 @@ document.addEventListener("DOMContentLoaded", function () {
   // Function to fetch current USD/INR exchange rate
   const fetchExchangeRate = async () => {
     try {
-      const response = await fetch(
-        "https://query1.finance.yahoo.com/v8/finance/chart/USDINR=X"
-      );
+      const url = "https://query1.finance.yahoo.com/v8/finance/chart/USDINR=X";
+      const response = await fetch(CORS_PROXY + encodeURIComponent(url));
       const data = await response.json();
 
       if (!data.chart || !data.chart.result || !data.chart.result[0]) {
@@ -37,7 +39,7 @@ document.addEventListener("DOMContentLoaded", function () {
       return currentExchangeRate;
     } catch (error) {
       console.error("Error fetching exchange rate:", error);
-      throw error; // Propagate error instead of using fallback
+      throw error;
     }
   };
 
@@ -168,10 +170,9 @@ document.addEventListener("DOMContentLoaded", function () {
     try {
       console.log(`Fetching price for ${metal.name}...`);
 
-      // Using Yahoo Finance API
-      const response = await fetch(
-        `https://query1.finance.yahoo.com/v8/finance/chart/${metal.symbol}?interval=1d&range=5d`
-      );
+      // Using Yahoo Finance API with CORS proxy
+      const url = `https://query1.finance.yahoo.com/v8/finance/chart/${metal.symbol}?interval=1d&range=5d`;
+      const response = await fetch(CORS_PROXY + encodeURIComponent(url));
       const data = await response.json();
 
       if (!data.chart || !data.chart.result || !data.chart.result[0]) {
@@ -201,7 +202,7 @@ document.addEventListener("DOMContentLoaded", function () {
       };
     } catch (error) {
       console.error(`Error fetching ${metal.name} price:`, error);
-      throw error; // Propagate error instead of using mock data
+      throw error;
     }
   };
 
