@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // API Configuration
   const FMP_API = {
     baseUrl: "https://api.metals.dev/v1",
-    apiKey: "G4IXQPGPGPAFCF8A3HZY3628A3HZY",
+    apiKey: "1PIOP75RSVZH7UHJFVWL249HJFVWL",
   };
 
   // List of metals to track
