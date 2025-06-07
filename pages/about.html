@@ -96,22 +96,20 @@
 <body>
     <!-- Navigation -->
     <nav class="navbar">
-        <div class="logo">
-            <img src="https://images.unsplash.com/photo-1614728263952-84ea256f9679?w=500" alt="MetalTrading Logo">
-            <span>MetalTrading</span>
-        </div>
-        <div class="hamburger">
+        <a href="../index.html" class="logo">Metal Trading</a>
+        <button id="hamburger" class="hamburger" aria-label="Menu">
             <span></span>
             <span></span>
             <span></span>
-        </div>
-        <div class="nav-links">
+        </button>
+        <div id="navLinks" class="nav-links">
             <a href="../index.html">Home</a>
             <a href="about.html" class="active">About</a>
             <a href="services.html">Services</a>
             <a href="market.html">Market</a>
             <a href="contact.html">Contact</a>
         </div>
+        <div id="sidebarOverlay" class="sidebar-overlay"></div>
     </nav>
 
     <!-- About Hero Section -->
@@ -227,6 +225,7 @@
 
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="../js/main.js"></script>
+    <script src="../js/menu.js"></script>
 </body>
 
 </html>
