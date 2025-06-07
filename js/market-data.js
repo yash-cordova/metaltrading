@@ -11,8 +11,13 @@ document.addEventListener("DOMContentLoaded", function () {
   const priceContainer = document.getElementById("live-prices");
   let currentExchangeRate = null;
 
-  // Using AllOrigins CORS proxy
-  const CORS_PROXY = "https://api.allorigins.win/raw?url=";
+  // Multiple CORS proxies for fallback
+  const PROXIES = [
+    "https://api.allorigins.win/raw?url=",
+    "https://api.codetabs.com/v1/proxy?quest=",
+    "https://corsproxy.io/?",
+    "https://cors-anywhere.herokuapp.com/",
+  ];
 
   if (!priceContainer) {
     console.error(
@@ -23,12 +28,34 @@ document.addEventListener("DOMContentLoaded", function () {
 
   console.log("Price container found:", priceContainer);
 
+  // Function to try fetching with different proxies
+  const fetchWithProxy = async (url, proxyIndex = 0) => {
+    if (proxyIndex >= PROXIES.length) {
+      throw new Error("All proxies failed");
+    }
+
+    try {
+      const proxyUrl = PROXIES[proxyIndex] + encodeURIComponent(url);
+      console.log(`Trying proxy ${proxyIndex + 1}: ${proxyUrl}`);
+
+      const response = await fetch(proxyUrl);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.warn(`Proxy ${proxyIndex + 1} failed:`, error);
+      // Try next proxy
+      return fetchWithProxy(url, proxyIndex + 1);
+    }
+  };
+
   // Function to fetch current USD/INR exchange rate
   const fetchExchangeRate = async () => {
     try {
       const url = "https://query1.finance.yahoo.com/v8/finance/chart/USDINR=X";
-      const response = await fetch(CORS_PROXY + encodeURIComponent(url));
-      const data = await response.json();
+      const data = await fetchWithProxy(url);
 
       if (!data.chart || !data.chart.result || !data.chart.result[0]) {
         throw new Error("Invalid exchange rate data");
@@ -170,10 +197,8 @@ document.addEventListener("DOMContentLoaded", function () {
     try {
       console.log(`Fetching price for ${metal.name}...`);
 
-      // Using Yahoo Finance API with CORS proxy
       const url = `https://query1.finance.yahoo.com/v8/finance/chart/${metal.symbol}?interval=1d&range=5d`;
-      const response = await fetch(CORS_PROXY + encodeURIComponent(url));
-      const data = await response.json();
+      const data = await fetchWithProxy(url);
 
       if (!data.chart || !data.chart.result || !data.chart.result[0]) {
         throw new Error("Invalid price data");
